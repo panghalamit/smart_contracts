@@ -112,6 +112,22 @@ contract JointOwnableAccount {
         }
     }
     
+    //function to view all pendingRequests 
+    function getPendingRequests() public checkPartnership constant returns (uint[] memory pending) {
+        uint count=0;
+        for(uint i=0; i<transactions; i++) {
+            if(!pendingRequests[i].executed && pendingRequests[i].beneficiary != 0) 
+                count++;
+        }
+        pending = new uint[](count);
+        count=0;
+        for(uint j=0; j<transactions; j++) {
+            if(!pendingRequests[j].executed && pendingRequests[j].beneficiary != 0)
+                pending[count++] = j;
+        }
+        return pending;
+    }
+    
     // function to add a new secondary partner : only owner can access
     function addNewPartner(address partner) public ownerOnly notAlreadyPartner(partner){
         partners.push(partner);
@@ -131,9 +147,11 @@ contract JointOwnableAccount {
     
     // function to withdraw sum out of account : only owner can access
     function withdraw(uint amount) public ownerOnly {
-        require(amount <= balance);
+        assert(amount <= balance);
         balance -= amount;
-        msg.sender.transfer(amount);
+        if(!msg.sender.send(amount)) {
+            balance += amount;
+        }
     }
     
     // function to create a withdrawal request by a secondary partner
@@ -176,7 +194,9 @@ contract JointOwnableAccount {
             require(balance >= pendingRequests[wr_id].amount, "Account doesnt have enough balance");
             balance-=pendingRequests[wr_id].amount;
             pendingRequests[wr_id].executed=true;
-            pendingRequests[wr_id].beneficiary.transfer(pendingRequests[wr_id].amount);
+            if(!pendingRequests[wr_id].beneficiary.send(pendingRequests[wr_id].amount)) {
+                balance+=pendingRequests[wr_id].amount;
+            }
         }
     }
     
