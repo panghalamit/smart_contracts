@@ -125,7 +125,6 @@ contract JointOwnableAccount {
             if(!pendingRequests[j].executed && pendingRequests[j].beneficiary != 0)
                 pending[count++] = j;
         }
-        return pending;
     }
     
     // function to add a new secondary partner : only owner can access
@@ -163,7 +162,6 @@ contract JointOwnableAccount {
         else {
             wid = addTransaction(amount, msg.sender);
         }
-        return wid;
     } 
     
     // function to approve a withdraw request with a given id : only partners can access
@@ -185,7 +183,6 @@ contract JointOwnableAccount {
             executed: false
         });
         transactions += 1;
-        return transactionId;
     }
     
     // function to execute a withdraw request if is has required number of approvals, is not already executed : only partners can access
