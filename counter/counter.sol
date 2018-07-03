@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.19;
 contract Counter {
     int private count = 0;
     function incrementCounter() public {
@@ -13,4 +13,8 @@ contract Counter {
     
     function() public payable {
     } 
+    
+    function withdraw() external {
+        require(msg.sender.send(address(this).balance));
+    }
 }
